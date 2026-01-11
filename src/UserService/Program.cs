@@ -6,6 +6,7 @@ using Shared.Messaging;
 using Asp.Versioning;
 using Serilog;
 using Serilog.Formatting.Compact;
+using UserService.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,7 @@ builder.Services.AddApiVersioning(options =>
     builder.Services.AddControllers();
     builder.Services.AddScoped<IUserService, UserService.Services.UserService>();
     builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
+    builder.Services.AddHostedService<OrderCreatedConsumer>();
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
