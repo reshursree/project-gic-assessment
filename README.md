@@ -121,14 +121,20 @@ For the complete list of architectural decisions, see the [ADR Directory](docs/a
 
 ## AI-Assisted Development
 
-This project was developed utilizing AI as an advanced documentation and research tool. Full architectural control and logical decision-making remained under human oversight, with AI serving as a catalyst for infrastructure scaffolding .
+This project was developed with AI serving **strictly as a research assistant and documentation tool**. All architectural decisions, design patterns, and implementation logic were **human-driven and fully understood** by the developer. AI was leveraged to accelerate repetitive tasks and validate technical approaches, similar to using Stack Overflow or technical documentation.
 
-### 1. Boilerplate & Infrastructure
+### 1. Boilerplate & Infrastructure Assistance
 
-- **Template Generation**: GenAI was strategically utilized as a high-efficiency alternative to traditional project templates, generating service skeletons and initial Docker configurations.
-- **TDD Verification**: Once the core business logic was architected, AI was used to assist in the generation of unit and integration test cases (like researching boundary conditions), which were subsequently reviewed and refined to ensure full coverage of boundary conditions.
+- **Template Generation**: AI was used to accelerate the creation of initial service skeletons and Docker configurations, similar to using `dotnet new` templates. All generated code was reviewed, understood, and modified as needed.
+- **TDD Test Scaffolding**: After designing the test strategy and business logic, AI assisted in generating test case structures and researching edge cases. All tests were manually reviewed, validated, and refactored to ensure correctness.
 
-### 2. Technical Validation & Research
+### 2. Technical Research & Validation
 
-- **Decision Support**: The AI agent (**Gemini**) functioned as an enhanced "StackOverflow + Professor" to contest architectural decisions, validate compliance with DDD principles, and research alternative messaging strategies (e.g., Kafka vs. RabbitMQ).
-- **Architecture as Code (PlantUML)**: Diagrams were generated to visualize the system design and are version-controlled alongside the code to maintain a single source of truth and prevent "documentation drift." All generated diagrams were manually verified for architectural accuracy.
+- **Decision Support**: AI (**Gemini**) was used as a research tool to explore architectural trade-offs, validate DDD principles, and investigate messaging patterns (e.g., Kafka vs. RabbitMQ). All final decisions were made by the developer based on project requirements.
+- **Architecture Diagrams (PlantUML)**: AI assisted in generating initial PlantUML syntax for system diagrams. All diagrams were manually verified for architectural accuracy, modified to reflect the actual implementation, and version-controlled as living documentation.
+
+### Development Approach
+
+- **Human-Led Architecture**: All architectural decisions documented in ADRs were made through independent analysis and research.
+- **Code Understanding**: Every line of code in this repository is fully understood and can be explained in technical interviews.
+- **AI as Accelerator**: AI was used to speed up repetitive tasks (boilerplate, documentation formatting) and as a sounding board for technical validation, not as a substitute for software engineering expertise.
