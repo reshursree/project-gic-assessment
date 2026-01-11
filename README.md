@@ -25,8 +25,8 @@ For a comprehensive understanding of the system design, refer to the following d
 
 ### Services
 
-- **User Service (Port 5001)**: Handles user registration and emits `UserCreatedEvent`.
-- **Order Service (Port 5002)**: Consumes user events via a Background Service and manages the order lifecycle.
+- **User Service (Port 5001)**: Handles user registration, emits `UserCreatedEvent`, and consumes `OrderCreatedEvent` for tracking.
+- **Order Service (Port 5002)**: Manages order lifecycle, emits `OrderCreatedEvent`, and consumes `UserCreatedEvent` via a Background Service.
 - **Shared.Messaging**: Shared plumbing for resilient Kafka Producers and Consumers.
 
 ## Getting Started
@@ -64,9 +64,10 @@ We follow a strict **Red-Green-Refactor** cycle.
 
 ### 3. Resilient Messaging
 
-- **Polly Integration**: Kafka producers use exponential backoff for transient failure handling.
+- **Polly Integration**: Kafka producers in both services use exponential backoff for transient failure handling.
 - **Manual Commits**: Consumers use manual offset commits to ensure exactly-once processing (At-Least-Once + Idempotency).
-- **Event Schema Management**: All integration events are versioned and documented in the `Shared.Messaging` library to prevent breaking changes across services.
+- **Event Schema Management**: All integration events (`UserCreatedEvent`, `OrderCreatedEvent`) are versioned and documented in the `Shared.Messaging` library to prevent breaking changes across services.
+- **Bidirectional Flow**: Demonstrates true decoupled communication where services act as both producers and consumers of domain events.
 - **Idempotency**: Duplicate message delivery is handled through unique event ID tracking in the database, preventing duplicate processing.
 
 ### 4. Containerization & Orchestration
@@ -136,5 +137,5 @@ This project was developed with AI serving **strictly as a research assistant an
 ### Development Approach
 
 - **Human-Led Architecture**: All architectural decisions documented in ADRs were made through independent analysis and research.
-- **Code Understanding**: Every line of code in this repository is fully understood and can be explained in technical interviews.
-- **AI as Accelerator**: AI was used to speed up repetitive tasks (boilerplate, documentation formatting) and as a sounding board for technical validation, not as a substitute for software engineering expertise.
+- **Code Understanding**: Every line of code in this repository is fully understood and can be explained .
+- **AI as Accelerator**: AI was used to speed up repetitive tasks (boilerplate, documentation formatting) and not as a substitute for software engineering expertise.
