@@ -50,7 +50,7 @@ public class OrderServiceIntegrationTests : IClassFixture<WebApplicationFactory<
     public async Task CreateOrder_ReturnsCreated()
     {
         // Arrange
-        var request = new 
+        var request = new CreateOrderRequest
         { 
             UserId = Guid.NewGuid(), 
             Product = "GIC Assessment Car", 
@@ -63,13 +63,16 @@ public class OrderServiceIntegrationTests : IClassFixture<WebApplicationFactory<
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var order = await response.Content.ReadFromJsonAsync<OrderResponse>();
+        order.Should().NotBeNull();
+        order!.Product.Should().Be(request.Product);
     }
 
     [Fact]
     public async Task GetOrder_WhenExists_ReturnsOk()
     {
         // Arrange
-        var request = new 
+        var request = new CreateOrderRequest
         { 
             UserId = Guid.NewGuid(), 
             Product = "Search Car", 
@@ -77,16 +80,17 @@ public class OrderServiceIntegrationTests : IClassFixture<WebApplicationFactory<
             Price = 90000.00m 
         };
         var createResponse = await _client.PostAsJsonAsync("/orders", request);
-        var createdOrder = await createResponse.Content.ReadFromJsonAsync<OrderService.DTOs.OrderResponse>();
+        var createdOrder = await createResponse.Content.ReadFromJsonAsync<OrderResponse>();
 
         // Act
         var response = await _client.GetAsync($"/orders/{createdOrder!.Id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var fetchedOrder = await response.Content.ReadFromJsonAsync<OrderService.DTOs.OrderResponse>();
+        var fetchedOrder = await response.Content.ReadFromJsonAsync<OrderResponse>();
         fetchedOrder.Should().NotBeNull();
         fetchedOrder!.Id.Should().Be(createdOrder.Id);
+        fetchedOrder.Product.Should().Be(request.Product);
     }
 
     [Fact]
