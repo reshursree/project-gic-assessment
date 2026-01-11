@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 using UserService.Middleware;
 using UserService.Services;
+using Shared.Messaging;
 using Asp.Versioning;
 using Serilog;
 using Serilog.Formatting.Compact;
@@ -51,6 +52,7 @@ builder.Services.AddApiVersioning(options =>
 
     builder.Services.AddControllers();
     builder.Services.AddScoped<IUserService, UserService.Services.UserService>();
+    builder.Services.AddSingleton<IKafkaProducer, KafkaProducer>();
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>

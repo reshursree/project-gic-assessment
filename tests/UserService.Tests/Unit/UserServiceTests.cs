@@ -5,6 +5,7 @@ using Moq;
 using UserService.Data;
 using UserService.DTOs;
 using UserService.Services;
+using Shared.Messaging;
 
 namespace UserService.Tests.Unit;
 
@@ -12,6 +13,7 @@ public class UserServiceTests : IDisposable
 {
     private readonly UserDbContext _context;
     private readonly IUserService _service;
+    private readonly Mock<IKafkaProducer> _kafkaProducerMock = new();
 
     public UserServiceTests()
     {
@@ -21,7 +23,7 @@ public class UserServiceTests : IDisposable
 
         _context = new UserDbContext(options);
         var mockLogger = new Mock<ILogger<UserService.Services.UserService>>();
-        _service = new UserService.Services.UserService(_context, mockLogger.Object);
+        _service = new UserService.Services.UserService(_context, mockLogger.Object, _kafkaProducerMock.Object);
     }
 
     [Fact]
