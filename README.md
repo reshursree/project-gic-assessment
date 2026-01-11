@@ -1,45 +1,78 @@
-# Assessment
+# Assessment: Event-Driven Microservices Platform
 
-## Running the App
+This project demonstrates a resilient, event-driven microservices architecture built with .NET 9, Kafka, and Docker. It showcases industry-grade patterns for cross-service communication, distributed resilience, and automated CI/CD.
 
-To run the app, you can use the following command:
+## 🏗️ Architecture Overview
+
+The system follows a **Modular Monolith/Microservices** hybrid approach within a monorepo structure to maximize developer agility while maintaining clear bounded contexts.
+
+- **Event-Driven**: Services communicate asynchronously via Apache Kafka.
+- **Shared Foundation**: A `Shared.Messaging` library centralizes resilient Kafka logic (using Polly).
+- **Resilience**: Implements exponential backoff, circuit-breaker patterns (logic ready), and idempotent processing.
+
+### Services
+
+- **User Service (Port 5001)**: Handles user registration and emits `UserCreatedEvent`.
+- **Order Service (Port 5002)**: Consumes user events via a Background Service and manages the order lifecycle.
+- **Shared.Messaging**: Shared plumbing for resilient Kafka Producers and Consumers.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (for local development)
+
+### Running the App
+
+The entire stack, including Kafka and Zookeeper, is orchestrated via Docker Compose.
 
 ```bash
 docker compose up --build
 ```
 
-## Features
+- **Swagger UI (User Service)**: `http://localhost:5001/swagger`
+- **Swagger UI (Order Service)**: `http://localhost:5002/swagger`
+- **Health Checks**: Available at `/health` for all services.
 
-### 1. Structured Logging
+---
 
-- We can use structured logging to make it easier to search and analyze logs.
+## 🛠️ Engineering Standards
 
-### 2. Health Checks
+### 1. Test-Driven Development (TDD)
 
-- We can use health checks to make it easier to monitor the health of the container.
+We follow a strict **Red-Green-Refactor** cycle.
 
-### 3. Metrics
+- **Integration Tests**: Use `WebApplicationFactory` and mocks for infrastructure to ensure fast, reliable CI.
+- **Test Command**: `dotnet test TakeHomeTest.sln`
 
-- We can use metrics to make it easier to monitor the performance of the container.
+### 2. Structured Logging & Observability
 
-### 4. Configuration
+- **Serilog**: Configured with a `CompactJsonFormatter` for easy ingestion into ELK/Splunk.
+- **Health Checks**: Standard ASP.NET Core health checks integrated with Docker orchestration.
 
-- We can use environment variables to make it easier to configure the container.
+### 3. Resilient Messaging
 
-## Recommendations
+- **Polly Integration**: Kafka producers use exponential backoff for transient failure handling.
+- **Manual Commits**: Consumers use manual offset commits to ensure exactly-once processing (At-Least-Once + Idempotency).
 
-### 1. Docker Image Security
+---
 
-- We can use distroless images to reduce the attack surface of the container.
-- We can use multi-stage builds to reduce the size of the container.
-- We can use a non-root user to run the application.
+## 📈 Future Recommendations
 
-### 2. Deployment to Container Registry and CD
+### Security
 
-- We can use GitHub Actions to build and push the container image to GitHub Container Registry.
-- We can use GitHub Actions to deploy the container image to a container registry.
+- **Distroless Images**: Move to bitnami or Google distroless base images to reduce attack surface.
+- **Non-Root User**: Configure Dockerfiles to run as non-root for production.
 
-### 3. Monitoring and Logging
+### CI/CD & DevOps
 
-- We can use Prometheus and Grafana to monitor the container.
-- We can use ELK Stack to log the container.
+- **GHCR Integration**: Automate image pushing to GitHub Container Registry/Dockerhub.
+- **Helm Charts**: Prepare for K8s deployment using Helm for environment modeling.
+
+### Monitoring
+
+- **Prometheus/Grafana**: Export metrics via OpenTelemetry.
+- **ELK Stack**: Centralize logs for cross-service tracing (Correlation IDs).

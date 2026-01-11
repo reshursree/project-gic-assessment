@@ -40,7 +40,8 @@ public class UserCreatedConsumer : BackgroundService
         {
             try
             {
-                var consumeResult = _consumer.Consume(stoppingToken);
+                // Use timeout instead of cancellation token to avoid interfering with Kestrel startup
+                var consumeResult = _consumer.Consume(TimeSpan.FromMilliseconds(100));
                 
                 if (consumeResult?.Message != null)
                 {
@@ -52,6 +53,9 @@ public class UserCreatedConsumer : BackgroundService
                     // Industry standard: Commit only after successful processing
                     _consumer.Commit(consumeResult);
                 }
+                
+                // Small delay to prevent tight loop and reduce CPU usage
+                await Task.Delay(10, stoppingToken);
             }
             catch (OperationCanceledException)
             {
@@ -61,6 +65,7 @@ public class UserCreatedConsumer : BackgroundService
             {
                 _logger.LogError(ex, "Error processing Kafka message from {Topic}", Topic);
                 // In a production scenario, we'd use a Dead Letter Queue (DLQ) here
+                await Task.Delay(1000, stoppingToken); // Back off on error
             }
         }
     }
