@@ -5,6 +5,10 @@ using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OrderService.BackgroundServices;
+using Shared.Messaging;
+using Moq;
+using System.Net.Http.Json;
+using System.Net.Http;
 
 namespace OrderService.Tests.Integration;
 
@@ -24,6 +28,10 @@ public class OrderServiceIntegrationTests : IClassFixture<WebApplicationFactory<
                 {
                     services.Remove(descriptor);
                 }
+
+                // Mock Kafka Producer
+                var kafkaMock = new Mock<IKafkaProducer>();
+                services.AddSingleton(kafkaMock.Object);
             });
         }).CreateClient();
     }
@@ -39,11 +47,52 @@ public class OrderServiceIntegrationTests : IClassFixture<WebApplicationFactory<
     }
 
     [Fact]
+    public async Task CreateOrder_ReturnsCreated()
+    {
+        // Arrange
+        var request = new 
+        { 
+            UserId = Guid.NewGuid(), 
+            Product = "GIC Assessment Car", 
+            Quantity = 1, 
+            Price = 45000.00m 
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/orders", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+    }
+
+    [Fact]
+    public async Task GetOrder_WhenExists_ReturnsOk()
+    {
+        // Arrange
+        var request = new 
+        { 
+            UserId = Guid.NewGuid(), 
+            Product = "Search Car", 
+            Quantity = 2, 
+            Price = 90000.00m 
+        };
+        var createResponse = await _client.PostAsJsonAsync("/orders", request);
+        var createdOrder = await createResponse.Content.ReadFromJsonAsync<OrderService.DTOs.OrderResponse>();
+
+        // Act
+        var response = await _client.GetAsync($"/orders/{createdOrder!.Id}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var fetchedOrder = await response.Content.ReadFromJsonAsync<OrderService.DTOs.OrderResponse>();
+        fetchedOrder.Should().NotBeNull();
+        fetchedOrder!.Id.Should().Be(createdOrder.Id);
+    }
+
+    [Fact]
     public void Consumer_ShouldProcessUserCreatedEvent()
     {
-        // TODO: Implement verification that the consumer correctly processes the UserCreatedEvent.
-        // This will be part of the hardening/business logic implementation.
-        // For now, we keep it as a placeholder to maintain the TDD structure without breaking CI.
+        // Placeholder to maintain TDD structure without breaking CI.
         Assert.True(true);
     }
 }
