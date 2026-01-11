@@ -1,0 +1,41 @@
+@startuml ComponentDiagram
+
+!theme plain
+
+package "GIC Platform" {
+    [UserService] <<.NET 9 API>> as US
+    [OrderService] <<.NET 9 API>> as OS
+    database "In-Memory DB\n(Users)" as USDB
+    database "In-Memory DB\n(Orders)" as OSDB
+    queue "Kafka" as Kafka
+}
+
+US --> USDB : CRUD
+OS --> OSDB : CRUD
+
+US --> Kafka : Publishes\nuser.created
+OS --> Kafka : Publishes\norder.created
+Kafka --> US : Consumes\norder.created
+Kafka --> OS : Consumes\nuser.created
+
+note right of Kafka
+  **Topics:**
+  • user.created
+  • order.created
+end note
+
+note left of US
+  **Endpoints:**
+  • POST /users
+  • GET /users/{id}
+  • GET /health
+end note
+
+note right of OS
+  **Endpoints:**
+  • POST /orders
+  • GET /orders/{id}
+  • GET /health
+end note
+
+@enduml

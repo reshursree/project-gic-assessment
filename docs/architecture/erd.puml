@@ -1,0 +1,31 @@
+@startuml LogicalERD
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <i>x</i>
+
+hide methods
+hide stereotypes
+
+package "User Service Context" {
+    Table(User, "User\n(User Domain)") {
+        primary_key(Id) : UUID
+        Name : String
+        Email : String
+    }
+}
+
+package "Order Service Context" {
+    Table(Order, "Order\n(Sales Domain)") {
+        primary_key(Id) : UUID
+        foreign_key(UserId) : UUID
+        Product : String
+        Quantity : Int
+        Price : Decimal
+        CreatedAt : DateTime
+    }
+}
+
+' Logical relationship (Event-based, no physical FK)
+User "1" ..o{ Order : "references via userId (Eventual Consistency)"
+
+@enduml

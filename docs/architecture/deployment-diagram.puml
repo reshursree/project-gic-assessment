@@ -1,0 +1,70 @@
+@startuml DeploymentDiagram
+
+node "Docker Host" {
+    
+    node "Zookeeper Container" as zk <<container>> {
+        component "Zookeeper" as zkapp
+        note right: Port 2181
+    }
+    
+    node "Kafka Container" as kafka <<container>> {
+        component "Kafka Broker" as kafkaapp
+        note right
+            Port 9092 (internal)
+            Port 29092 (host)
+        end note
+    }
+    
+    node "UserService Container" as us <<container>> {
+        component ".NET 9 Runtime" as usrt
+        component "UserService API" as usapi
+        component "Kafka Consumer" as usconsumer
+        database "In-Memory DB" as usdb
+        note right: Port 5001 (host) -> 8080 (container)
+    }
+    
+    node "OrderService Container" as os <<container>> {
+        component ".NET 9 Runtime" as osrt
+        component "OrderService API" as osapi
+        component "Kafka Consumer" as osconsumer
+        database "In-Memory DB" as osdb
+        note right: Port 5002 (host) -> 8080 (container)
+    }
+}
+
+cloud "External Client" as client
+
+' Relationships
+client --> usapi : HTTP :5001
+client --> osapi : HTTP :5002
+
+usapi --> usdb : Read/Write
+osapi --> osdb : Read/Write
+
+usapi --> kafkaapp : Produce (user.created)
+osapi --> kafkaapp : Produce (order.created)
+
+kafkaapp --> usconsumer : Deliver (order.created)
+kafkaapp --> osconsumer : Deliver (user.created)
+
+kafkaapp --> zkapp : Coordination
+
+note bottom of us
+  **Environment:**
+  ASPNETCORE_ENVIRONMENT=Development
+  Kafka__BootstrapServers=kafka:9092
+end note
+
+note bottom of os
+  **Environment:**
+  ASPNETCORE_ENVIRONMENT=Development
+  Kafka__BootstrapServers=kafka:9092
+end note
+
+legend right
+  |= Symbol |= Meaning |
+  | <<container>> | Docker Container |
+  | Port mapping | host:container |
+endlegend
+
+@enduml

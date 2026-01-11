@@ -1,0 +1,84 @@
+@startuml EventFlowDiagram
+
+!define RECTANGLE class
+
+skinparam rectangle {
+    BackgroundColor<<event>> LightYellow
+    BorderColor<<event>> Orange
+    BackgroundColor<<producer>> LightGreen
+    BorderColor<<producer>> Green
+    BackgroundColor<<consumer>> LightBlue
+    BorderColor<<consumer>> Blue
+}
+
+rectangle "UserService" <<producer>> as US_P {
+    + POST /users
+    + Publishes to: user.created
+}
+
+rectangle "OrderService" <<producer>> as OS_P {
+    + POST /orders
+    + Publishes to: order.created
+}
+
+rectangle "user.created Topic" <<event>> as UC {
+    **Event Schema:**
+    {
+      "Id": "GUID",
+      "Name": "string",
+      "Email": "string",
+      "CreatedAt": "DateTime"
+    }
+}
+
+rectangle "order.created Topic" <<event>> as OC {
+    **Event Schema:**
+    {
+      "Id": "GUID",
+      "UserId": "GUID",
+      "Product": "string",
+      "Quantity": "int",
+      "Price": "decimal",
+      "CreatedAt": "DateTime"
+    }
+}
+
+rectangle "OrderService Consumer" <<consumer>> as OS_C {
+    + Subscribes to: user.created
+    + Group: order-service-group
+    + Action: Log & validate user exists
+}
+
+rectangle "UserService Consumer" <<consumer>> as US_C {
+    + Subscribes to: order.created
+    + Group: user-service-group
+    + Action: Log & track user activity
+}
+
+' Publishing flows
+US_P --> UC : Publish
+OS_P --> OC : Publish
+
+' Consumption flows
+UC --> OS_C : Consume
+OC --> US_C : Consume
+
+note as N1
+  **Kafka Configuration:**
+  - Bootstrap Servers: kafka:9092
+  - Replication Factor: 1
+  - Auto Offset Reset: Earliest
+  - Topics auto-created on first publish
+end note
+
+note bottom of US_C
+  Demonstrates cross-service
+  event-driven communication
+end note
+
+note bottom of OS_C
+  Demonstrates cross-service
+  event-driven communication
+end note
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml SequenceDiagram
+actor "Reviewer / Client" as User
+participant "UserService" as US
+participant "OrderService" as OS
+queue "Kafka" as Kafka
+
+== Phase 1: User Registration ==
+User -> US: POST /users\n{name, email}
+US -> US: Save to In-Memory DB
+US -> Kafka: Publish [user.created]
+US --> User: 201 Created {userId}
+
+Kafka -> OS: Consume [user.created]
+OS -> OS: Log user event (demo)
+
+== Phase 2: Order Placement ==
+User -> OS: POST /orders\n{userId, product, quantity, price}
+OS -> OS: Validate & Save to In-Memory DB
+OS -> Kafka: Publish [order.created]
+OS --> User: 201 Created {orderId}
+
+Kafka -> US: Consume [order.created]
+US -> US: Log order event (demo)
+
+== Verification ==
+User -> US: GET /users/{id}
+US --> User: 200 OK {user details}
+
+User -> OS: GET /orders/{id}
+OS --> User: 200 OK {order details}
+
+@enduml

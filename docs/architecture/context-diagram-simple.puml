@@ -1,0 +1,36 @@
+@startuml SimplifiedContextDiagram
+
+title GIC E-Commerce Platform - Context Diagram
+
+actor "Customer/Reviewer" as customer
+rectangle "GIC Platform" {
+    component "User Service\n(Port 5001)" as us
+    component "Order Service\n(Port 5002)" as os
+    component "Kafka Broker\n(Port 9092)" as kafka
+    component "Zookeeper\n(Port 2181)" as zk
+}
+
+customer --> us : POST /users\nGET /users/{id}
+customer --> os : POST /orders\nGET /orders/{id}
+
+us --> kafka : Publishes:\nuser.created
+os --> kafka : Publishes:\norder.created
+
+kafka --> us : Delivers:\norder.created
+kafka --> os : Delivers:\nuser.created
+
+kafka --> zk : Coordination
+
+note right of us
+  - In-Memory DB
+  - Kafka Consumer
+  - .NET 9 API
+end note
+
+note right of os
+  - In-Memory DB
+  - Kafka Consumer
+  - .NET 9 API
+end note
+
+@enduml
