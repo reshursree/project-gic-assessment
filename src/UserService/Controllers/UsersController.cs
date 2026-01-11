@@ -36,8 +36,15 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
     {
-        var response = await _userService.CreateUserAsync(request);
-        return CreatedAtAction(nameof(GetUser), new { id = response.Id }, response);
+        try
+        {
+            var response = await _userService.CreateUserAsync(request);
+            return CreatedAtAction(nameof(GetUser), new { id = response.Id }, response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     /// <summary>
@@ -50,8 +57,15 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult GetUser(Guid id)
+    public async Task<IActionResult> GetUser(Guid id)
     {
-        return Ok();
+        var user = await _userService.GetUserByIdAsync(id);
+        
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(user);
     }
 }
