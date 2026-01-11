@@ -1,6 +1,6 @@
 # Architecture Decision Records (ADRs)
 
-This directory contains records for the significant architectural decisions made during the development of the ExploreSG platform.
+This directory contains records for the significant architectural decisions made during the development of the GIC platform.
 
 ## Current ADRs
 

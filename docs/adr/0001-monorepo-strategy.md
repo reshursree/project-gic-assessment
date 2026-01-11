@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-As we scale the ExploreSG platform into multiple microservices (UserService, OrderService, etc.), we need a repository strategy that balances development velocity, code sharing, and operational complexity.
+As we scale the GIC platform into multiple microservices (UserService, OrderService, etc.), we need a repository strategy that balances development velocity, code sharing, and operational complexity.
 
 ## Decision
 
