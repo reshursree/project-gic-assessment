@@ -22,7 +22,7 @@ public class UserCreatedConsumer : BackgroundService
         
         var config = new ConsumerConfig
         {
-            BootstrapServers = configuration["Kafka:BootstrapServers"] ?? "localhost:9092",
+            BootstrapServers = configuration["Kafka:BootstrapServers"] ?? configuration["Kafka__BootstrapServers"] ?? "localhost:9092",
             GroupId = "order-service-group",
             AutoOffsetReset = AutoOffsetReset.Earliest,
             EnableAutoCommit = false // Industry standard: Manual commit after processing

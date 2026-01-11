@@ -22,7 +22,7 @@ public class KafkaProducer : IKafkaProducer, IDisposable
         
         var producerConfig = new ProducerConfig
         {
-            BootstrapServers = configuration["Kafka:BootstrapServers"] ?? "localhost:9092",
+            BootstrapServers = configuration["Kafka:BootstrapServers"] ?? configuration["Kafka__BootstrapServers"] ?? "localhost:9092",
             Acks = Acks.All, // Ensure strong durability
             EnableIdempotence = true, // Ensure exactly-once semantics
             MessageSendMaxRetries = 3
