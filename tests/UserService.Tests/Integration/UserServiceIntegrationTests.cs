@@ -26,7 +26,7 @@ public class UserServiceIntegrationTests : IClassFixture<WebApplicationFactory<P
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/users", request);
+        var response = await _client.PostAsJsonAsync("/api/v1/users", request);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);

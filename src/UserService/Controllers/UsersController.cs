@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UserService.DTOs;
 using UserService.Services;
+using Asp.Versioning;
 
 namespace UserService.Controllers;
 
@@ -8,7 +9,8 @@ namespace UserService.Controllers;
 /// Handles user account management and lifecycle operations.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;

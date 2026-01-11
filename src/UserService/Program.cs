@@ -1,11 +1,31 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
+using Asp.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseInMemoryDatabase("UserDb"));
+
+// Add Health Checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<UserDbContext>("database");
+
+// Add API Versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Api-Version"));
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<UserService.Services.IUserService, UserService.Services.UserService>();
@@ -19,6 +39,9 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "Handles user registrations and profile management."
     });
+
+    // Enable Swagger Annotations
+    options.EnableAnnotations();
 
     // Senior Signal: Include XML Comments in Swagger
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -41,6 +64,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+// Map Health Check Endpoint
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 
