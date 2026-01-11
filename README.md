@@ -35,8 +35,6 @@ docker compose up --build
 - **Swagger UI (Order Service)**: `http://localhost:5002/swagger`
 - **Health Checks**: Available at `/health` for all services.
 
----
-
 ## Engineering Standards
 
 ### 1. Test-Driven Development (TDD)
@@ -56,14 +54,13 @@ We follow a strict **Red-Green-Refactor** cycle.
 - **Polly Integration**: Kafka producers use exponential backoff for transient failure handling.
 - **Manual Commits**: Consumers use manual offset commits to ensure exactly-once processing (At-Least-Once + Idempotency).
 
----
-
 ## Future Recommendations
 
 ### Security
 
 - **Distroless Images**: Move to bitnami or Google distroless base images to reduce attack surface.
 - **Non-Root User**: Configure Dockerfiles to run as non-root for production.
+- **Secrets Management**: Use environment variables for sensitive data. Later a secret management system should be implemented.
 
 ### CI/CD & DevOps
 
@@ -74,3 +71,7 @@ We follow a strict **Red-Green-Refactor** cycle.
 
 - **Prometheus/Grafana**: Export metrics via OpenTelemetry.
 - **ELK Stack**: Centralize logs for cross-service tracing (Correlation IDs).
+
+### Branch Pruning
+
+- **Branch Pruning**: Use `git branch -d` to delete feature branches after merge.
