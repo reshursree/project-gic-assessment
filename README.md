@@ -1,8 +1,8 @@
 # Assessment: Event-Driven Microservices Platform
 
-This project demonstrates a resilient, event-driven microservices architecture built with .NET 9, Kafka, and Docker. It showcases industry-grade patterns for cross-service communication, distributed resilience, and automated CI/CD.
+This project features a resilient, event-driven microservices architecture built with .NET 9, Kafka, and Docker. It showcases industry-grade patterns for cross-service communication, distributed resilience, and automated CI/CD.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 The system follows a **Modular Monolith/Microservices** hybrid approach within a monorepo structure to maximize developer agility while maintaining clear bounded contexts.
 
@@ -16,9 +16,7 @@ The system follows a **Modular Monolith/Microservices** hybrid approach within a
 - **Order Service (Port 5002)**: Consumes user events via a Background Service and manages the order lifecycle.
 - **Shared.Messaging**: Shared plumbing for resilient Kafka Producers and Consumers.
 
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -39,7 +37,7 @@ docker compose up --build
 
 ---
 
-## 🛠️ Engineering Standards
+## Engineering Standards
 
 ### 1. Test-Driven Development (TDD)
 
@@ -60,7 +58,7 @@ We follow a strict **Red-Green-Refactor** cycle.
 
 ---
 
-## 📈 Future Recommendations
+## Future Recommendations
 
 ### Security
 
