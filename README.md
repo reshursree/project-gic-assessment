@@ -1,6 +1,6 @@
 # Assessment: Event-Driven Microservices Platform
 
-This project features a resilient, event-driven microservices architecture built with .NET 9, Kafka, and Docker. It showcases industry-grade patterns for cross-service communication, distributed resilience, and automated CI/CD.
+This project features a resilient, event-driven microservices architecture built with .NET 9, Kafka, and Docker. It showcases decoupled DDD patterns for cross-service communication, distributed resilience, and automated CI/CD coupled with TDD and containerization.
 
 ## Architecture Overview
 
@@ -9,6 +9,7 @@ The system follows a **Modular Monolith/Microservices** hybrid approach within a
 - **Event-Driven**: Services communicate asynchronously via Apache Kafka.
 - **Shared Foundation**: A `Shared.Messaging` library centralizes resilient Kafka logic (using Polly).
 - **Resilience**: Implements exponential backoff, circuit-breaker patterns (logic ready), and idempotent processing.
+- **Decision Tracking**: Technical rationale is captured in [Architecture Decision Records (ADRs)](docs/adr/README.md).
 
 ### Services
 
@@ -54,6 +55,14 @@ We follow a strict **Red-Green-Refactor** cycle.
 - **Polly Integration**: Kafka producers use exponential backoff for transient failure handling.
 - **Manual Commits**: Consumers use manual offset commits to ensure exactly-once processing (At-Least-Once + Idempotency).
 
+### 4. Containerization
+
+To run the application locally, development workflow is docker based and docker compose is used to orchestrate the entire stack, including Kafka and Zookeeper. This allows agility and ease of development.
+
+### 5. Continuous Integration & Delivery (CI/CD)
+
+- **GitHub Actions**: Automated CI/CD pipeline using GitHub Actions for quick feedback and deployment.
+
 ## Future Recommendations
 
 ### Security
@@ -72,6 +81,18 @@ We follow a strict **Red-Green-Refactor** cycle.
 - **Prometheus/Grafana**: Export metrics via OpenTelemetry.
 - **ELK Stack**: Centralize logs for cross-service tracing (Correlation IDs).
 
-### Branch Pruning
+### Workflow Details
 
-- **Branch Pruning**: Use `git branch -d` to delete feature branches after merge.
+- **Branch Strategy**: Feature-based branching with mandatory PR reviews.
+- **Cleanup**: Housekeeping via periodic branch pruning.
+
+## AI Use
+
+### 1. Boilerplate Code Generation
+
+- **Boilerplate Code**: AI-generated boilerplate code for common patterns and infrastructure.
+- **Unit Tests** : Once the logic was finalised by me, Unit Tests were genereated which was reviewed to ensure that the logic was correct.
+
+### 2. Architecture Decisions
+
+- To validate and contest the decisions made and choose the best possible solution, ai-agent [gemini] was used as an enhanced stackoverflow + professor
