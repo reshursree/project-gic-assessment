@@ -1,58 +1,62 @@
 @startuml EventFlowDiagram
 
-!define RECTANGLE class
-
 skinparam rectangle {
     BackgroundColor<<event>> LightYellow
     BorderColor<<event>> Orange
-    BackgroundColor<<producer>> LightGreen
-    BorderColor<<producer>> Green
+    BackgroundColor<<service>> LightGreen
+    BorderColor<<service>> Green
     BackgroundColor<<consumer>> LightBlue
     BorderColor<<consumer>> Blue
 }
 
-rectangle "UserService" <<producer>> as US_P {
-    + POST /users
-    + Publishes to: user.created
+rectangle "UserService" <<service>> as US_P {
+    note as US_Logic
+      POST /users
+      Publishes: user.created
+    end note
 }
 
-rectangle "OrderService" <<producer>> as OS_P {
-    + POST /orders
-    + Publishes to: order.created
+rectangle "OrderService" <<service>> as OS_P {
+    note as OS_Logic
+      POST /orders
+      Publishes: order.created
+    end note
 }
 
 rectangle "user.created Topic" <<event>> as UC {
-    **Event Schema:**
-    {
-      "Id": "GUID",
-      "Name": "string",
-      "Email": "string",
-      "CreatedAt": "DateTime"
-    }
+    label UC_Schema [
+        **Event Schema:**
+        - Id: GUID
+        - Name: string
+        - Email: string
+        - CreatedAt: DateTime
+    ]
 }
 
 rectangle "order.created Topic" <<event>> as OC {
-    **Event Schema:**
-    {
-      "Id": "GUID",
-      "UserId": "GUID",
-      "Product": "string",
-      "Quantity": "int",
-      "Price": "decimal",
-      "CreatedAt": "DateTime"
-    }
+    label OC_Schema [
+        **Event Schema:**
+        - Id: GUID
+        - UserId: GUID
+        - Product: string
+        - Quantity: int
+        - Price: decimal
+        - CreatedAt: DateTime
+    ]
 }
 
 rectangle "OrderService Consumer" <<consumer>> as OS_C {
-    + Subscribes to: user.created
-    + Group: order-service-group
-    + Action: Log & validate user exists
+    label OS_C_Action [
+        Subscribes to: user.created
+        Action: Map user data to local context
+    ]
 }
 
 rectangle "UserService Consumer" <<consumer>> as US_C {
-    + Subscribes to: order.created
-    + Group: user-service-group
-    + Action: Log & track user activity
+    label US_C_Action [
+        Subscribes to: order.created
+        Action: Track user purchase activity
+    ]
 }
 
 ' Publishing flows
@@ -67,18 +71,7 @@ note as N1
   **Kafka Configuration:**
   - Bootstrap Servers: kafka:9092
   - Replication Factor: 1
-  - Auto Offset Reset: Earliest
-  - Topics auto-created on first publish
-end note
-
-note bottom of US_C
-  Demonstrates cross-service
-  event-driven communication
-end note
-
-note bottom of OS_C
-  Demonstrates cross-service
-  event-driven communication
+  - Topics auto-created or via script
 end note
 
 @enduml
