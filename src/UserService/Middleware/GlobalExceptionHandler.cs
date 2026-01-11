@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace UserService.Middleware;
 
+/// <summary>
+/// Centralizes exception handling across the service, transforming unhandled exceptions into 
+/// standardized <see cref="ProblemDetails"/> responses according to RFC 7807.
+/// </summary>
 public class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
@@ -12,6 +16,13 @@ public class GlobalExceptionHandler : IExceptionHandler
         _logger = logger;
     }
 
+    /// <summary>
+    /// Attempts to handle the exception and write a standardized error response to the client.
+    /// </summary>
+    /// <param name="httpContext">The current HTTP context.</param>
+    /// <param name="exception">The unhandled exception caught by the middleware.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns><c>true</c> if the exception was handled; otherwise, <c>false</c>.</returns>
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
