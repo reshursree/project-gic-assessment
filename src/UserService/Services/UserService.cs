@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 using UserService.DTOs;
 using UserService.Models;
+using UserService.Events;
+using Shared.Messaging;
 
 namespace UserService.Services;
 
@@ -12,11 +14,13 @@ public class UserService : IUserService
 {
     private readonly UserDbContext _context;
     private readonly ILogger<UserService> _logger;
+    private readonly IKafkaProducer _kafkaProducer;
 
-    public UserService(UserDbContext context, ILogger<UserService> logger)
+    public UserService(UserDbContext context, ILogger<UserService> logger, IKafkaProducer kafkaProducer)
     {
         _context = context;
         _logger = logger;
+        _kafkaProducer = kafkaProducer;
     }
 
     /// <summary>
@@ -46,6 +50,14 @@ public class UserService : IUserService
         await _context.SaveChangesAsync();
         
         _logger.LogInformation("User created: {UserId}", user.Id);
+
+        // Industry standard: Publish integration event after DB transaction
+        await _kafkaProducer.PublishAsync("user-created", new UserCreatedEvent
+        {
+            UserId = user.Id,
+            Name = user.Name,
+            Email = user.Email
+        });
 
         return MapToResponse(user);
     }

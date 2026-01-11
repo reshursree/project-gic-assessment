@@ -21,4 +21,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.Messaging\Shared.Messaging.csproj" />
+  </ItemGroup>
+
 </Project>

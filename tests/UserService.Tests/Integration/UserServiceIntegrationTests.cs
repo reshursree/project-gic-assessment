@@ -3,16 +3,28 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using UserService.DTOs;
+using Moq;
+using Shared.Messaging;
+using Microsoft.Extensions.DependencyInjection;
+using UserService.Events;
 
 namespace UserService.Tests.Integration;
 
 public class UserServiceIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client;
+    private readonly Mock<IKafkaProducer> _kafkaProducerMock = new();
 
     public UserServiceIntegrationTests(WebApplicationFactory<Program> factory)
     {
-        _client = factory.CreateClient();
+        _client = factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureServices(services =>
+            {
+                // Substitute the real producer with our mock for integration testing
+                services.AddSingleton(_kafkaProducerMock.Object);
+            });
+        }).CreateClient();
     }
 
     [Fact]
@@ -100,5 +112,30 @@ public class UserServiceIntegrationTests : IClassFixture<WebApplicationFactory<P
 
         // Assert - Should prevent duplicate
         secondResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateUser_PublishesUserCreatedEvent()
+    {
+        // Arrange
+        var request = new CreateUserRequest
+        {
+            Name = "Event User",
+            Email = "event@example.com"
+        };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/api/v1/users", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        
+        // Verify event was published to Kafka topic
+        _kafkaProducerMock.Verify(producer => 
+            producer.PublishAsync(
+                "user-created", 
+                It.Is<UserCreatedEvent>(e => e.Email == request.Email && e.Name == request.Name), 
+                It.IsAny<CancellationToken>()), 
+            Times.Once);
     }
 }
