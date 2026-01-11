@@ -5,6 +5,7 @@ using Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OrderService.BackgroundServices;
+using OrderService.DTOs;
 using Shared.Messaging;
 using Moq;
 using System.Net.Http.Json;
