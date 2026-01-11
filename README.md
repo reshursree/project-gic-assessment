@@ -80,6 +80,17 @@ See the [Deployment Diagram](docs/architecture/diagrams/deployment-diagram.puml)
 
 - **GitHub Actions**: Automated CI/CD pipeline using GitHub Actions for quick feedback and deployment.
 
+### 6. Self-Documenting Codebase
+
+The project follows a **documentation-as-code** philosophy to ensure that documentation stays synchronized with implementation:
+
+- **Swagger/OpenAPI**: Both services expose interactive API documentation at `/swagger` endpoints. All endpoints, DTOs, and response models are automatically documented with XML comments and integrated into Swagger UI for real-time API exploration.
+- **Architecture Decision Records (ADRs)**: Major architectural choices are documented in [docs/adr/](docs/adr/README.md) following the ADR format. This provides context for future maintainers on why specific technologies (Kafka, Monorepo) were chosen.
+- **PlantUML Diagrams**: System architecture is captured in version-controlled [PlantUML diagrams](docs/architecture/diagrams/) covering context, components, event flows, sequences, data models, and deployment. These diagrams serve as living documentation that evolves with the codebase.
+- **Code Comments**: XML documentation comments on public APIs ensure IntelliSense support and auto-generated documentation.
+
+This multi-layered documentation strategy ensures that knowledge is embedded at every level—from high-level architectural decisions down to individual API contracts.
+
 ## Future Recommendations
 
 ### Security
