@@ -8,6 +8,7 @@ on:
     paths:
       - "src/UserService/**"
       - "tests/UserService.Tests/**"
+      - "src/Shared/Shared.Messaging/**"
       - "Directory.Packages.props"
       - ".github/workflows/ci-user-service.yaml"
   pull_request:
@@ -16,6 +17,7 @@ on:
     paths:
       - "src/UserService/**"
       - "tests/UserService.Tests/**"
+      - "src/Shared/Shared.Messaging/**"
       - "Directory.Packages.props"
   workflow_dispatch:
 
