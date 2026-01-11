@@ -1,0 +1,64 @@
+name: OrderService CI
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+    paths:
+      - "src/OrderService/**"
+      - "tests/OrderService.Tests/**"
+      - "src/Shared/Shared.Messaging/**"
+      - "Directory.Packages.props"
+      - ".github/workflows/ci-order-service.yaml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/OrderService/**"
+      - "tests/OrderService.Tests/**"
+      - "src/Shared/Shared.Messaging/**"
+      - "Directory.Packages.props"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: order-service-coverage-report
+          path: coverage/
+          retention-days: 7
