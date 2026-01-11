@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
+using UserService.Middleware;
+using UserService.Services;
 using Asp.Versioning;
 using Serilog;
 using Serilog.Formatting.Compact;
@@ -44,27 +46,25 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
-builder.Services.AddControllers();
-builder.Services.AddScoped<UserService.Services.IUserService, UserService.Services.UserService>();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    builder.Services.AddProblemDetails();
+
+    builder.Services.AddControllers();
+    builder.Services.AddScoped<IUserService, UserService.Services.UserService>();
+
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen(options =>
     {
-        Title = "User Service API",
-        Version = "v1",
-        Description = "Handles user registrations and profile management."
+        options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+        {
+            Title = "User Service API",
+            Version = "v1"
+        });
+
+        var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        options.IncludeXmlComments(xmlPath);
     });
-
-    // Enable Swagger Annotations
-    options.EnableAnnotations();
-
-    // Senior Signal: Include XML Comments in Swagger
-    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    options.IncludeXmlComments(xmlPath);
-});
 
 var app = builder.Build();
 
@@ -72,11 +72,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "User Service API v1");
-    });
+    app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "User Service API v1"));
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
