@@ -1,5 +1,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
 using UserService.Data;
 using UserService.DTOs;
 using UserService.Services;
@@ -18,7 +20,8 @@ public class UserServiceTests : IDisposable
             .Options;
 
         _context = new UserDbContext(options);
-        _service = new UserService.Services.UserService(_context);
+        var mockLogger = new Mock<ILogger<UserService.Services.UserService>>();
+        _service = new UserService.Services.UserService(_context, mockLogger.Object);
     }
 
     [Fact]

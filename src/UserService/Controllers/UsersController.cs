@@ -14,14 +14,17 @@ namespace UserService.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly ILogger<UsersController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UsersController"/> class.
     /// </summary>
     /// <param name="userService">The user service.</param>
-    public UsersController(IUserService userService)
+    /// <param name="logger">The logger.</param>
+    public UsersController(IUserService userService, ILogger<UsersController> logger)
     {
         _userService = userService;
+        _logger = logger;
     }
 
     /// <summary>
@@ -36,13 +39,17 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
     {
+        _logger.LogInformation("Creating user with email: {Email}", request.Email);
+        
         try
         {
             var response = await _userService.CreateUserAsync(request);
+            _logger.LogInformation("User created successfully with ID: {UserId}", response.Id);
             return CreatedAtAction(nameof(GetUser), new { id = response.Id }, response);
         }
         catch (InvalidOperationException ex)
         {
+            _logger.LogWarning("Failed to create user with email {Email}: {Error}", request.Email, ex.Message);
             return BadRequest(new { error = ex.Message });
         }
     }
@@ -59,13 +66,17 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUser(Guid id)
     {
+        _logger.LogInformation("Retrieving user with ID: {UserId}", id);
+        
         var user = await _userService.GetUserByIdAsync(id);
         
         if (user == null)
         {
+            _logger.LogWarning("User not found with ID: {UserId}", id);
             return NotFound();
         }
 
+        _logger.LogInformation("User retrieved successfully: {UserId}", id);
         return Ok(user);
     }
 }

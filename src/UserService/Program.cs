@@ -1,8 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.Data;
 using Asp.Versioning;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .Enrich.WithProperty("Application", "UserService")
+    .WriteTo.Console(new CompactJsonFormatter())
+    .CreateLogger();
+
+try
+{
+    Log.Information("Starting UserService");
+
+// Add Serilog
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddDbContext<UserDbContext>(options =>
@@ -71,6 +88,18 @@ app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();
+
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "UserService terminated unexpectedly");
+    throw;
+}
+finally
+{
+    Log.Information("Shutting down UserService");
+    Log.CloseAndFlush();
+}
 
 // Make the implicit Program class public for test projects
 public partial class Program { }
