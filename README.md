@@ -55,9 +55,9 @@ We follow a strict **Red-Green-Refactor** cycle.
 - **Polly Integration**: Kafka producers use exponential backoff for transient failure handling.
 - **Manual Commits**: Consumers use manual offset commits to ensure exactly-once processing (At-Least-Once + Idempotency).
 
-### 4. Containerization
+### 4. Containerization & Orchestration
 
-To run the application locally, development workflow is docker based and docker compose is used to orchestrate the entire stack, including Kafka and Zookeeper. This allows agility and ease of development.
+The development workflow is entirely **Docker-based**. We use **Docker Compose** to orchestrate the full stack, including Kafka and Zookeeper. This ensures high local fidelity and rapid onboarding, as the entire environment can be spun up with a single command.
 
 ### 5. Continuous Integration & Delivery (CI/CD)
 
@@ -86,13 +86,16 @@ To run the application locally, development workflow is docker based and docker 
 - **Branch Strategy**: Feature-based branching with mandatory PR reviews.
 - **Cleanup**: Housekeeping via periodic branch pruning.
 
-## AI Use
+## AI-Assisted Development
 
-### 1. Boilerplate Code Generation
+This project was developed utilizing AI as an advanced documentation and research tool. Full architectural control and logical decision-making remained under human oversight, with AI serving as a catalyst for infrastructure scaffolding .
 
-- **Boilerplate Code**: AI-generated boilerplate code for common patterns and infrastructure.
-- **Unit Tests** : Once the logic was finalised by me, Unit Tests were genereated which was reviewed to ensure that the logic was correct.
+### 1. Boilerplate & Infrastructure
 
-### 2. Architecture Decisions
+- **Template Generation**: GenAI was strategically utilized as a high-efficiency alternative to traditional project templates, generating service skeletons and initial Docker configurations.
+- **TDD Verification**: Once the core business logic was architected, AI was used to assist in the generation of unit and integration test cases (like researching boundary conditions), which were subsequently reviewed and refined to ensure full coverage of boundary conditions.
 
-- To validate and contest the decisions made and choose the best possible solution, ai-agent [gemini] was used as an enhanced stackoverflow + professor
+### 2. Technical Validation & Research
+
+- **Decision Support**: The AI agent (**Gemini**) functioned as an enhanced "StackOverflow + Professor" to contest architectural decisions, validate compliance with DDD principles, and research alternative messaging strategies (e.g., Kafka vs. RabbitMQ).
+- **Architecture as Code (PlantUML)**: Diagrams were generated to visualize the system design and are version-controlled alongside the code to maintain a single source of truth and prevent "documentation drift." All generated diagrams were manually verified for architectural accuracy.
