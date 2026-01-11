@@ -1,7 +1,5 @@
 # Contributing Guidelines
 
-Thank you for considering contributing to this project! To ensure a smooth and effective collaboration, please follow the guidelines below.
-
 ## How to Contribute
 
 | Step | Action                                                                                                                                         |
