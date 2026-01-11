@@ -1,0 +1,77 @@
+@startuml EventFlowDiagram
+
+skinparam rectangle {
+    BackgroundColor<<event>> LightYellow
+    BorderColor<<event>> Orange
+    BackgroundColor<<service>> LightGreen
+    BorderColor<<service>> Green
+    BackgroundColor<<consumer>> LightBlue
+    BorderColor<<consumer>> Blue
+}
+
+rectangle "UserService" <<service>> as US_P {
+    note as US_Logic
+      POST /users
+      Publishes: user.created
+    end note
+}
+
+rectangle "OrderService" <<service>> as OS_P {
+    note as OS_Logic
+      POST /orders
+      Publishes: order.created
+    end note
+}
+
+rectangle "user.created Topic" <<event>> as UC {
+    label UC_Schema [
+        **Event Schema:**
+        - Id: GUID
+        - Name: string
+        - Email: string
+        - CreatedAt: DateTime
+    ]
+}
+
+rectangle "order.created Topic" <<event>> as OC {
+    label OC_Schema [
+        **Event Schema:**
+        - Id: GUID
+        - UserId: GUID
+        - Product: string
+        - Quantity: int
+        - Price: decimal
+        - CreatedAt: DateTime
+    ]
+}
+
+rectangle "OrderService Consumer" <<consumer>> as OS_C {
+    label OS_C_Action [
+        Subscribes to: user.created
+        Action: Map user data to local context
+    ]
+}
+
+rectangle "UserService Consumer" <<consumer>> as US_C {
+    label US_C_Action [
+        Subscribes to: order.created
+        Action: Track user purchase activity
+    ]
+}
+
+' Publishing flows
+US_P --> UC : Publish
+OS_P --> OC : Publish
+
+' Consumption flows
+UC --> OS_C : Consume
+OC --> US_C : Consume
+
+note as N1
+  **Kafka Configuration:**
+  - Bootstrap Servers: kafka:9092
+  - Replication Factor: 1
+  - Topics auto-created or via script
+end note
+
+@enduml
